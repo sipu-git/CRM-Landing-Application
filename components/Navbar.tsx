@@ -1,10 +1,9 @@
-"use client";
-
+'use client';
 import { useEffect, useState } from "react";
+import { Menu, X, Mountain } from "lucide-react";
 import { motion, useScroll, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { CiMountain1 } from "react-icons/ci";
-import { BiCloset, BiMenu } from "react-icons/bi";
+import { useAuth } from "./auth/AuthProvider";
 
 const links = [
   { label: "Product", href: "#features" },
@@ -16,6 +15,7 @@ const links = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { user, openAuth, signOut } = useAuth();
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24, restDelta: 0.001 });
 
@@ -39,7 +39,7 @@ export function Navbar() {
       <nav className="mx-auto grid max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-5 py-4 lg:px-8">
         <a href="#top" className="flex min-w-0 items-center gap-2.5">
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl surface-ink">
-            <CiMountain1 className="h-4.5 w-4.5 text-amber" />
+            <Mountain className="h-4.5 w-4.5 text-amber" />
           </span>
           <span className="truncate font-display text-lg font-bold">Northpeak</span>
         </a>
@@ -57,18 +57,20 @@ export function Navbar() {
               </li>
             ))}
           </ul>
-          <a
-            href="/signup"
-            className="hidden rounded-xl bg-[image:var(--gradient-amber)] px-4 py-2.5 text-sm font-semibold text-amber-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 sm:inline-flex"
-          >
-            Start free trial
-          </a>
+          {!user && (
+            <button
+              onClick={() => openAuth("signin")}
+              className="hidden rounded-xl bg-[image:var(--gradient-amber)] px-4 py-2.5 text-sm font-semibold text-amber-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 sm:inline-flex"
+            >
+              Sign in
+            </button>
+          )}
           <button
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border md:hidden"
           >
-            {open ? <BiCloset className="h-5 w-5" /> : <BiMenu className="h-5 w-5" />}
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </nav>
@@ -88,12 +90,24 @@ export function Navbar() {
               </li>
             ))}
           </ul>
-          <a
-            href="/signup"
-            className="mt-2 block rounded-xl bg-[image:var(--gradient-amber)] px-4 py-3 text-center text-sm font-semibold text-amber-foreground"
+          <button
+            onClick={() => {
+              setOpen(false);
+              openAuth("signup");
+            }}
+            className="mt-1 block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-muted-foreground"
           >
-            Start free trial
-          </a>
+            Create account
+          </button>
+          <button
+            onClick={() => {
+              setOpen(false);
+              user ? signOut() : openAuth("signin");
+            }}
+            className="mt-2 block w-full rounded-xl bg-[image:var(--gradient-amber)] px-4 py-3 text-center text-sm font-semibold text-amber-foreground"
+          >
+            {user ? "Log out" : "Sign in"}
+          </button>
         </div>
       )}
       <motion.div

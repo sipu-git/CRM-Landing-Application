@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion
 import { Reveal } from "../Reveal";
 import { BsArrowRight } from "react-icons/bs";
 import { BiPlayCircle } from "react-icons/bi";
+import { useAuth } from "../auth/AuthProvider";
 
 const timeline = [
   { label: "Lead created", detail: "Website form — Alpine Industries", time: "10:04:12" },
@@ -12,16 +13,26 @@ const timeline = [
   { label: "Intro email sent", detail: "Template: inbound first touch", time: "10:04:14" },
   { label: "Follow-up task created", detail: "Due tomorrow, 9:00 AM", time: "10:04:14" },
 ];
+const APP_DASHBOARD_URL = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard` : "/dashboard";
 
 export function Hero() {
   const reduced = useReducedMotion();
   const shellRef = useRef<HTMLDivElement>(null);
+  const { user, openAuth } = useAuth();
   const { scrollYProgress } = useScroll({
     target: shellRef,
     offset: ["start start", "end start"],
   });
   const y = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : -60]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 0.97]);
+
+  function handleTrialClick(e: React.MouseEvent) {
+    if (user) {
+      return;
+    }
+    e.preventDefault();
+    openAuth("signup");
+  }
 
   return (
     <section id="top" className="relative overflow-hidden pt-32 pb-16 lg:pt-40">
@@ -45,10 +56,11 @@ export function Hero() {
           </Reveal>
           <Reveal delay={180} className="mt-8 flex flex-wrap items-center gap-3">
             <a
-              href="/signup"
+              href={user ? APP_DASHBOARD_URL : "#"}
+              onClick={handleTrialClick}
               className="inline-flex items-center gap-2 rounded-xl bg-[image:var(--gradient-amber)] px-5 py-3.5 text-sm font-semibold text-amber-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5"
             >
-              Start free trial <BsArrowRight className="h-4 w-4" />
+              {user ? "Go to dashboard" : "Start free trial"} <BsArrowRight className="h-4 w-4" />
             </a>
             <a
               href="#workflow"

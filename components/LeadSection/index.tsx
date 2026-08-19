@@ -7,47 +7,82 @@ import { BiCheckCircle, BiUserPlus } from "react-icons/bi";
 import { LuListChecks, LuMailCheck } from "react-icons/lu";
 import { Reveal } from "../Reveal";
 import { BsArrowRight } from "react-icons/bs";
+import { useAppDispatch, useAppSelector } from "@/stores/hooks"; // adjust to your actual typed-hooks path
+import { createProject } from "@/features/projects/slice"; // adjust to your actual slice path
+import { createProjectClientSchema } from "@/features/projects/validate"; // adjust path
+import type { CreateProjectPayload, Source } from "@/features/projects/types"; // adjust path
 
-const teamSizes = ["1–5 reps", "6–25 reps", "26–100 reps", "100+ reps"];
-const sources = [
-    "Website form",
-    "Referral",
-    "Outbound",
-    "Event or conference",
-    "Existing CRM import",
+const sources: { label: string; value: Source }[] = [
+    { label: "Website form", value: "WEBSITE" },
+    { label: "Referral", value: "REFERAL" },
+    { label: "Social media", value: "SOCIAL_MEDIA" },
+    { label: "Event or conference", value: "EVENT" },
+    { label: "Webinar", value: "WEBINAR" },
+    { label: "Other", value: "OTHER" },
 ];
 
 const whatHappens = [
-    { icon: BiUserPlus, title: "Lead created & auto-assigned", detail: "Routed to a rep by your territory rules", time: "instantly" },
+    { icon: BiUserPlus, title: "Project created & owner assigned", detail: "Company and contact linked automatically", time: "instantly" },
     { icon: LuMailCheck, title: "Intro email sent", detail: "Your inbound first-touch template", time: "instantly" },
     { icon: LuListChecks, title: "Follow-up task created", detail: "On the owner's list for tomorrow, 9:00 AM", time: "1 day later" },
     { icon: BiCheckCircle, title: "Stale check scheduled", detail: "Flagged to the manager if untouched", time: "3 days later" },
 ];
 
+const initialForm = {
+    full_name: "",
+    email: "",
+    company: "",
+    phone: "",
+    designation: "",
+    project_name: "",
+    source: sources[0].value as Source,
+    notes: "",
+};
+
 export function LeadForm() {
     const reduced = useReducedMotion();
+    const dispatch = useAppDispatch();
+    const { createStatus } = useAppSelector((state) => state.projects);
     const [submitted, setSubmitted] = useState(false);
-    const [form, setForm] = useState({
-        name: "",
-        email: "",
-        company: "",
-        phone: "",
-        teamSize: teamSizes[1] as string,
-        source: sources[0] as string,
-        notes: "",
-    });
+    const [company, setCompany] = useState("");
+    const [form, setForm] = useState(initialForm);
 
     const set = (key: keyof typeof form) => (value: string) =>
         setForm((f) => ({ ...f, [key]: value }));
 
-    const onSubmit = (e: React.FormEvent) => {
+    const submitting = createStatus === "loading";
+
+    const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!form.name.trim() || !form.email.trim() || !form.company.trim()) {
-            toast.error("Name, work email and company are required.");
+
+        const [first_name, ...rest] = form.full_name.trim().split(" ");
+        const last_name = rest.join(" ") || undefined;
+
+        const payload: CreateProjectPayload = {
+            company_name: form.company.trim(),
+            source: form.source,
+            first_name,
+            last_name,
+            contact_email: form.email.trim() || undefined,
+            contact_phone: form.phone.trim() || undefined,
+            designation: form.designation.trim() || undefined,
+            project_name: form.project_name.trim(),
+        };
+
+        const parsed = createProjectClientSchema.safeParse(payload);
+        if (!parsed.success) {
+            toast.error(parsed.error.issues[0]?.message ?? "Please check the form fields.");
             return;
         }
-        setSubmitted(true);
-        toast.success(`Lead created for ${form.company} — owner assigned and follow-up scheduled.`);
+
+        const result = await dispatch(createProject(payload));
+        if (createProject.fulfilled.match(result)) {
+            setCompany(form.company);
+            setSubmitted(true);
+            toast.success(`${form.company} is in the pipeline — project created.`);
+        } else {
+            toast.error((result.payload as string) ?? "Could not create the project. Please try again.");
+        }
     };
 
     const field =
@@ -61,12 +96,12 @@ export function LeadForm() {
                         Try the capture step
                     </p>
                     <h2 className="mt-4 text-3xl font-bold sm:text-4xl">
-                        Create a lead and watch the automation take over
+                        Create a project and watch the automation take over
                     </h2>
                     <p className="mt-5 text-base leading-relaxed text-muted-foreground">
-                        This is the same form your website would post into Northpeak. Fill it in and you'll see
-                        exactly what fires the moment a lead lands — assignment, first email, follow-up task, and
-                        the stale check that catches it if nobody moves.
+                        This is the same form your team uses to bring on a new client. Fill it in and you'll see
+                        exactly what fires the moment a project lands — company and contact created, owner
+                        assigned, first email, follow-up task, and the stale check that catches it if nobody moves.
                     </p>
 
                     <ol className="mt-8 space-y-3">
@@ -95,7 +130,7 @@ export function LeadForm() {
                 <Reveal delay={100}>
                     <div className="rounded-2xl border border-white/10 p-6 shadow-[var(--shadow-float)] surface-ink">
                         <div className="flex items-center justify-between gap-3">
-                            <h3 className="font-display text-lg font-semibold">New lead</h3>
+                            <h3 className="font-display text-lg font-semibold">New project</h3>
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-teal">
                                 <span className="h-1.5 w-1.5 rounded-full bg-teal live-dot" /> Live
                             </span>
@@ -113,10 +148,10 @@ export function LeadForm() {
                                 >
                                     <BiCheckCircle className="h-6 w-6 text-teal" />
                                     <p className="mt-3 font-display text-lg font-semibold">
-                                        {form.company} is in the pipeline
+                                        {company} is in the pipeline
                                     </p>
                                     <p className="mt-2 text-sm text-ink-muted">
-                                        Owner assigned from your {form.source.toLowerCase()} rule, intro email sent, and a
+                                        Company and contact were created, owner assigned, intro email sent, and a
                                         follow-up task queued for tomorrow morning. In your real workspace this record
                                         appears on every teammate's board instantly.
                                     </p>
@@ -138,10 +173,13 @@ export function LeadForm() {
                                         ))}
                                     </ol>
                                     <button
-                                        onClick={() => setSubmitted(false)}
+                                        onClick={() => {
+                                            setSubmitted(false);
+                                            setForm(initialForm);
+                                        }}
                                         className="mt-6 rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10"
                                     >
-                                        Create another lead
+                                        Create another project
                                     </button>
                                 </motion.div>
                             ) : (
@@ -159,8 +197,8 @@ export function LeadForm() {
                                             <span className="text-xs font-medium text-ink-muted">Full name *</span>
                                             <input
                                                 required
-                                                value={form.name}
-                                                onChange={(e) => set("name")(e.target.value)}
+                                                value={form.full_name}
+                                                onChange={(e) => set("full_name")(e.target.value)}
                                                 placeholder="Dana Whitfield"
                                                 className={cn(field, "text-foreground")}
                                             />
@@ -196,18 +234,25 @@ export function LeadForm() {
                                             />
                                         </label>
                                         <label className="grid gap-1.5">
-                                            <span className="text-xs font-medium text-ink-muted">Sales team size</span>
-                                            <select
-                                                value={form.teamSize}
-                                                onChange={(e) => set("teamSize")(e.target.value)}
+                                            <span className="text-xs font-medium text-ink-muted">Project name *</span>
+                                            <input
+                                                required
+                                                value={form.project_name}
+                                                onChange={(e) => set("project_name")(e.target.value)}
+                                                placeholder="Website redesign"
                                                 className={cn(field, "text-foreground")}
-                                            >
-                                                {teamSizes.map((t) => (
-                                                    <option key={t}>{t}</option>
-                                                ))}
-                                            </select>
+                                            />
                                         </label>
                                         <label className="grid gap-1.5">
+                                            <span className="text-xs font-medium text-ink-muted">Designation</span>
+                                            <input
+                                                value={form.designation}
+                                                onChange={(e) => set("designation")(e.target.value)}
+                                                placeholder="VP of Sales"
+                                                className={cn(field, "text-foreground")}
+                                            />
+                                        </label>
+                                        <label className="grid gap-1.5 sm:col-span-2">
                                             <span className="text-xs font-medium text-ink-muted">Lead source</span>
                                             <select
                                                 value={form.source}
@@ -215,7 +260,9 @@ export function LeadForm() {
                                                 className={cn(field, "text-foreground")}
                                             >
                                                 {sources.map((s) => (
-                                                    <option key={s}>{s}</option>
+                                                    <option key={s.value} value={s.value}>
+                                                        {s.label}
+                                                    </option>
                                                 ))}
                                             </select>
                                         </label>
@@ -232,15 +279,16 @@ export function LeadForm() {
                                     </label>
                                     <motion.button
                                         type="submit"
+                                        disabled={submitting}
                                         {...(reduced ? {} : { whileHover: { y: -2 }, whileTap: { scale: 0.985 } })}
-                                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[image:var(--gradient-amber)] px-5 py-3.5 text-sm font-semibold text-amber-foreground"
+                                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[image:var(--gradient-amber)] px-5 py-3.5 text-sm font-semibold text-amber-foreground disabled:opacity-70"
                                     >
-                                        Create lead <BsArrowRight className="h-4 w-4" />
+                                        {submitting ? "Creating…" : "Create project"} <BsArrowRight className="h-4 w-4" />
                                     </motion.button>
                                     <p className="text-xs text-ink-muted">
-                                        Demo form — nothing is stored. Want it wired to your workspace?{" "}
+                                        This creates a real project in your workspace. Need help getting set up?{" "}
                                         <a
-                                            href="mailto:sales@northpeak.app?subject=Northpeak%20lead%20capture"
+                                            href="mailto:sales@northpeak.app?subject=Northpeak%20project%20setup"
                                             className="underline underline-offset-2"
                                         >
                                             Talk to us
