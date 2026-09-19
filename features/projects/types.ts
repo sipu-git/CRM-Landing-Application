@@ -38,31 +38,6 @@ export interface CreateProjectPayload {
     description?: string;
 }
 
-export interface ConvertLeadToProjectPayload {
-    lead_id: string;
-    owner_id?: string;
-    start_date?: string;
-    due_date?: string;
-    budget?: string;
-}
-
-export interface UpdateProjectPayload {
-    project_name?: string;
-    project_type?: string;
-    status?: ProjectStatus;
-    timeline?: string;
-    budget?: string;
-    owner_id?: string;
-}
-
-export interface ListProjectsParams {
-    status?: ProjectStatus;
-    companyId?: string;
-    owner_id?: string;
-    search?: string;
-    page?: number;
-    pageSize?: number;
-}
 export interface ContactLookupResult {
     contactId: string;
     first_name: string;
@@ -80,12 +55,6 @@ export interface ApiSuccess<T> {
     data: T;
 }
 
-export interface PaginatedResponse<T> {
-    success: true;
-    data: T[];
-    pagination: { page: number; pageSize: number; total: number };
-}
-
 export type AsyncStatus = "idle" | "loading" | "succeeded" | "failed";
 
 export interface ProjectState {
@@ -93,19 +62,11 @@ export interface ProjectState {
     listStatus: AsyncStatus;
     listError: string | null;
     pagination: { page: number; pageSize: number; total: number };
-    filters: ListProjectsParams;
     selected: Project | null;
     selectedStatus: AsyncStatus;
     selectedError: string | null;
     createStatus: AsyncStatus;
     createError: string | null;
-    convertStatus: AsyncStatus;
-    convertError: string | null;
-    updateStatus: AsyncStatus;
-    updateError: string | null;
-
-    // Contact autofill lookup — kept in this slice since it exists only
-    // to serve the Add Project form, not a general Contacts module.
     lookupResult: ContactLookupResult | null;
     lookupStatus: AsyncStatus;
     lookupError: string | null;
