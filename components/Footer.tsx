@@ -2,6 +2,7 @@
 import { BsGithub, BsTwitter } from "react-icons/bs";
 import { FaMountain } from "react-icons/fa";
 import { LiaLinkedin } from "react-icons/lia";
+import { LuInstagram } from "react-icons/lu";
 
 const columns = [{
     title: "Product",
@@ -17,7 +18,7 @@ const columns = [{
     links: [
       { label: "About", href: "/about" },
       { label: "Careers", href: "/careers" },
-      { label: "Contact", href: "mailto:hello@northpeak.app" },
+      { label: "Contact", href: "sipurana38@gmail.com" },
       { label: "Book a demo", href: "mailto:sales@northpeak.app?subject=Northpeak%20demo" },
     ],
   },
@@ -48,10 +49,7 @@ export function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.2fr_2fr]">
           <div>
             <div className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-xl surface-ink">
-                <FaMountain className="h-4.5 w-4.5 text-amber" />
-              </span>
-              <span className="font-display text-lg font-bold">Northpeak</span>
+              <span className="font-display text-lg font-bold">ClearView CRM</span>
             </div>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground">
               A multi-tenant CRM with a real automation engine and live collaboration, for small and
@@ -59,9 +57,9 @@ export function Footer() {
             </p>
             <div className="mt-5 flex gap-2">
               {[
-                { Icon: LiaLinkedin, href: "https://linkedin.com", label: "LinkedIn" },
+                { Icon: LiaLinkedin, href: "https://www.linkedin.com/in/sipu-rana-72b56b242", label: "LinkedIn" },
                 { Icon: BsTwitter, href: "https://twitter.com", label: "X" },
-                { Icon: BsGithub, href: "https://github.com", label: "GitHub" },
+                { Icon: BsGithub, href: "https://github.com/sipu-git", label: "GitHub" },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -92,7 +90,7 @@ export function Footer() {
           </div>
         </div>
         <p className="mt-12 border-t border-border pt-6 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Northpeak. Hosted on Render with AWS RDS Postgres.
+          © {new Date().getFullYear()} ClearViewCRM. Hosted on Render with AWS RDS Postgres.
         </p>
       </div>
     </footer>

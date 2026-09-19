@@ -1,10 +1,8 @@
 'use client';
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
-// import { useAuth } from "./auth/AuthProvider";
 
 const links = [
   { label: "Product", href: "#features" },
@@ -16,7 +14,6 @@ const links = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  // const { user, openAuth, signOut } = useAuth();
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24, restDelta: 0.001 });
 
@@ -42,8 +39,10 @@ export function Navbar() {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        "fixed inset-x-0 top-0 z-50 w-full overflow-hidden transition-all duration-300",
-        scrolled ? "border-b border-border bg-background/85 backdrop-blur-md shadow-[var(--shadow-card)]" : "border-b border-transparent",
+        "fixed inset-x-0 top-0 z-50 w-full transition-all duration-300",
+        scrolled
+          ? "border-b border-border bg-background/85 backdrop-blur-md shadow-[var(--shadow-card)]"
+          : "border-b border-transparent bg-background/50 backdrop-blur-sm",
       )}
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 lg:px-8">
@@ -68,30 +67,38 @@ export function Navbar() {
           <button
             aria-label={open ? "Close menu" : "Open menu"}
             onClick={() => setOpen((v) => !v)}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border md:hidden"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-border text-foreground transition-colors hover:bg-secondary md:hidden"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </nav>
 
-      {open && (
-        <div className="absolute inset-x-0 top-full w-full border-t border-border bg-background px-5 pb-5 pt-2 md:hidden">
-          <ul className="grid gap-1">
-            {links.map((l) => (
-              <li key={l.label}>
-                <Link
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground"
-                >
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden border-t border-border bg-background/95 backdrop-blur-md px-5 pb-5 pt-2 md:hidden"
+          >
+            <ul className="grid gap-1">
+              {links.map((l) => (
+                <li key={l.label}>
+                  <a
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  >
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.div
         aria-hidden
