@@ -4,7 +4,7 @@ import { toast } from "sonner";
 
 // Adjust BASE_URL as needed for your environment
 // const BASE_URL = "http://localhost:5000/api";
-const BASE_URL = "https://crm-platform-backend-91af.onrender.com/api";
+const BASE_URL = process.env.NEXT_PUBLIC_RENDER_URL;
 
 export const api = axios.create({
   baseURL: BASE_URL,
