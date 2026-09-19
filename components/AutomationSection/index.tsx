@@ -34,7 +34,7 @@ export function Automation() {
 
     return (
         <section className="border-y border-border bg-secondary/60 py-24">
-            <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[1fr_1.05fr] lg:items-center lg:px-8">
+            <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 md:px-6 lg:px-8 grid-cols-1 md:grid-cols-2 items-start">
                 <Reveal>
                     <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-foreground">
                         <FiZap className="h-4 w-4" /> Automation engine

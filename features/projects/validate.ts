@@ -28,12 +28,12 @@ export const createProjectClientSchema = z
     contact_email: z.string().trim().email("Invalid email").optional(),
     contact_phone: z.string().trim().min(1).optional(),
     designation: z.string().trim().optional(),
+    description: z.string().trim().optional(),
     project_name: z.string().trim().min(1, "Project name is required"),
     project_type: z.string().trim().max(100).optional(),
     status: ProjectStatusEnum.default("NOT_STARTED"),
-    start_date: z.coerce.date().optional(),
-    due_date: z.coerce.date().optional(),
-    budget: z.coerce.number().nonnegative("Budget cannot be negative").optional(),
+    timeline: z.coerce.string().optional(),
+    budget: z.string().optional(),
     owner_id: z.string().cuid().optional(),
   })
 

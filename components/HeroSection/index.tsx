@@ -5,7 +5,8 @@ import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion
 import { Reveal } from "../Reveal";
 import { BsArrowRight } from "react-icons/bs";
 import { BiPlayCircle } from "react-icons/bi";
-import { useAuth } from "../auth/AuthProvider";
+import Link from "next/link";
+// import { useAuth } from "../auth/AuthProvider";
 
 const timeline = [
   { label: "Lead created", detail: "Website form — Alpine Industries", time: "10:04:12" },
@@ -18,7 +19,7 @@ const APP_DASHBOARD_URL = process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_
 export function Hero() {
   const reduced = useReducedMotion();
   const shellRef = useRef<HTMLDivElement>(null);
-  const { user, openAuth } = useAuth();
+  // const { user, openAuth } = useAuth();
   const { scrollYProgress } = useScroll({
     target: shellRef,
     offset: ["start start", "end start"],
@@ -26,13 +27,13 @@ export function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : -60]);
   const scale = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 0.97]);
 
-  function handleTrialClick(e: React.MouseEvent) {
-    if (user) {
-      return;
-    }
-    e.preventDefault();
-    openAuth("signup");
-  }
+  // function handleTrialClick(e: React.MouseEvent) {
+  //   if (user) {
+  //     return;
+  //   }
+  //   e.preventDefault();
+  //   openAuth("signup");
+  // }
 
   return (
     <section id="top" className="relative overflow-hidden pt-32 pb-16 lg:pt-40">
@@ -55,19 +56,19 @@ export function Hero() {
             each change the second it lands.
           </Reveal>
           <Reveal delay={180} className="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              href={user ? APP_DASHBOARD_URL : "#"}
-              onClick={handleTrialClick}
+            <Link
+              href={APP_DASHBOARD_URL}
+              // onClick={handleTrialClick}
               className="inline-flex items-center gap-2 rounded-xl bg-[image:var(--gradient-amber)] px-5 py-3.5 text-sm font-semibold text-amber-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5"
             >
-              {user ? "Go to dashboard" : "Start free trial"} <BsArrowRight className="h-4 w-4" />
-            </a>
-            <a
+              <BsArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
               href="#workflow"
               className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-3.5 text-sm font-semibold transition-colors hover:bg-secondary"
             >
               <BiPlayCircle className="h-4 w-4" /> See how it works
-            </a>
+            </Link>
           </Reveal>
           <Reveal delay={240} className="mt-8 border-t border-border pt-5 text-sm text-muted-foreground">
             Six built-in roles, from rep to admin · Running in production on Render + AWS RDS Postgres

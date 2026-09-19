@@ -1,9 +1,9 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import auth from "@/features/auth/slice";
+// import auth from "@/features/auth/slice";
 import projects from "@/features/projects/slice";
 
 const appReducer = combineReducers({
-  auth,
+  // auth,
   projects
 });
 

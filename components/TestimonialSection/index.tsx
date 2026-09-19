@@ -29,12 +29,12 @@ const quotes = [
 
 export function Testimonials() {
   return (
-    <section className="py-24">
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+    <section className="lg:py-24 py-12">
+      <div className="mx-auto grid w-full max-w-7xl gap-12 px-4 md:px-6 lg:px-8 grid-cols-1 items-start">
         <Reveal as="h2" className="max-w-2xl text-3xl font-bold sm:text-4xl">
           What changes in the first month
         </Reveal>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
           {quotes.map((q, i) => (
             <Reveal
               key={q.name}
@@ -46,8 +46,6 @@ export function Testimonials() {
                 <img
                   src={q.img}
                   alt={`${q.name}, ${q.role} at ${q.company}`}
-                  width={512}
-                  height={512}
                   loading="lazy"
                   decoding="async"
                   className="h-11 w-11 shrink-0 rounded-full object-cover"
